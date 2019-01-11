@@ -38,6 +38,7 @@ NC='\033[0m'
 
 function _start()
 {
+clear
 echo -e "\t [ ${VERM} Criando Regras Ipv4 ${NC} ]"
 # Limpando regras Existentes:
 	$IPT4 -F
@@ -117,6 +118,7 @@ echo -e "Ativando LOG na porta 22................................[ ${VERD}OK${NC
 
 function _stop()
 {
+clear
 echo -e "\t [ ${VERM} Removendo Regras Ipv4 ${NC} ]"
 # Limpando regras Existentes:
 	$IPT4 -F
@@ -167,14 +169,16 @@ function _status()
 	echo -e "[${VERDE} Regras IPv4 ${NC}]\n"; echo
    	$IPT4 -nL
 	echo -e "[${VERDE} Regras IPv6 ${NC}]\n"; echo
-    $IPT6 -nL
+    	$IPT6 -nL
 }
 
 function  _add_regras()
 {
+	clear
 	echo -e "Obs: informe a regra como no ex.: (-A OUTPUT -p tcp --dport xxx -j DROP).\n"
+	PS3="Escolha uma opção: "	
 	select op in add_ipv4 add_ipv6 sair; do
-		case op in
+		case ${REPLY} in
 			1) _help_add;read -p "REGRA: " regra; $IPT4 ${regra}; echo -e "${VERD} *Regra adicionada ${NC}\n";;
 			2) _help_add;read -p "REGRA: " regra; $IPT6 ${regra}; echo -e "${VERD} *Regra adicionada ${NC}\n";;
 			3) _help_add;break ;;
@@ -184,26 +188,30 @@ function  _add_regras()
 }
 function _remove_regras()
 {
+	clear
 	echo -e "Obs: informe a regra como no ex.: (-D OUTPUT -p tcp --dport 22 -j DROP).\n"
+	PS3="Escolha uma opção: "
 	select op in add_ipv4 add_ipv6 sair; do
-		case op in
+		case ${REPLY} in
 			1) _help_remove;read -p "REGRA IPV4: " regra; $IPT4 ${regra}; echo -e "${VERM} *Regra removida ${NC}\n";;
 			2) _help_remove;read -p "REGRA IPV6: " regra; $IPT6 ${regra}; echo -e "${VERM} *Regra removida ${NC}\n";;
 			3) break ;;
-			*) echo " * Opção inválida!" exit 1
+			*) echo " * Opção inválida!"
 		esac
 	done
 }
 function _save_regras_atual()
 {
+	clear
+	PS3="Escolha uma opção: "
 	select op in saveRipv4 restoreRipv4 saveRipv6 restoreRipv6  sair; do
-		case op in
+		case ${REPLY} in
 			1) $IPTS4 > /etc/iptables-save; echo -e "${VERM} *Regras ipv4 atuais salva ${NC}\n";;
 			2) $IPTR4 < /etc/iptables-save; echo -e "${VERM} *Regras ipv4 atuais restauradas ${NC}\n";;
 			3) $IPTS6 > /etc/ip6tables-save; echo -e "${VERM} *Regras ipv6 atuais salva ${NC}\n";;
 			4) $IPTR6 < /etc/ip6tables-save; echo -e "${VERM} *Regras ipv6 atuais restauradas ${NC}\n";;
 			5) break ;;
-			*) echo " * Opção inválida!" exit 1
+			*) echo " * Opção inválida!"
 		esac
 	done
 
@@ -212,6 +220,7 @@ function _save_regras_atual()
 }
 function _help_add()
 {
+	clear
 	echo "-A -> Adiciona uma regra no fim da lista."
 	echo "-I -> Insere uma regra no início da lista."
 	echo "-i -> Especifica a interface de entrada utilizada pela regra. "
@@ -231,23 +240,26 @@ function _help_add()
 	echo "DNAT -> Altera o endereço de destino do pacote."
 	echo "REDIRECT -> Redireciona a porta do pacote juntamente com a opção --to-port."
 	echo "TOS -> Prioriza a entrada e saída de pacotes baseado em seu tipo de serviço."
+	echo
 }
 
 function _help_remove()
 {
+	clear
 	echo "-D , --delete  cadeia  regra-especificação" 
 	echo "-D , --delete  cadeia  rulenum"
-    echo "Exclua uma ou mais regras da cadeia selecionada. "
-    echo "Existem duas versões deste comando: a regra pode ser especificada "
-    echo "como um número na cadeia (começando em 1 para a primeira regra) ou "
-    echo "uma regra para partida."
-    echo
-    echo "-R , --replace  cadeia  rulenum  regra-especificação"
-    echo "Substitua uma regra na cadeia selecionada."
-    echo "As regras são numeradas começando em 1. iptables --line-numbers"
-    echo
-    echo " iptables -L  --line-numbers. Ao listar regras, adicionA números de" 
-    echo "linha ao início de cada regra, correspondendo a essa regra posição na cadeia."
+	echo "Exclua uma ou mais regras da cadeia selecionada. "
+	echo "Existem duas versões deste comando: a regra pode ser especificada "
+	echo "como um número na cadeia (começando em 1 para a primeira regra) ou "
+	echo "uma regra para partida."
+	echo
+	echo "-R , --replace  cadeia  rulenum  regra-especificação"
+	echo "Substitua uma regra na cadeia selecionada."
+	echo "As regras são numeradas começando em 1. iptables --line-numbers"
+	echo
+	echo " iptables -L  --line-numbers. Ao listar regras, adicionA números de" 
+	echo "linha ao início de cada regra, correspondendo a essa regra posição na cadeia."
+	echo
 }
 
 case "$1" in
@@ -256,9 +268,9 @@ case "$1" in
 	restart|reload) echo -e "${AMAR} * Reiniciando Firewall ${NC}\n"; _stop;_start;;
 	status) echo -e "${AZUL}Status Firewall ${NC}\n"; _status;;
 	add) echo -e "${ROZA} Adicionar Novas Regras ao Firewall ${NC}\n"; _add_regras;;
-	remove) echo -e "${VERM} Remover Regras do Firewall ${NC}\n"; _remove;;
+	remove) echo -e "${VERM} Remover Regras do Firewall ${NC}\n"; _remove_regras;;
 	saveconf) echo -e "${VERM} Salvar Regras do Firewall Atual${NC}\n"; _save_regras_atual;;
-	*) echo " * Opção inválida, use: $0 {start|stop|restart|reload|status|add|remove}"; exit 1
+	*) echo " * Opção inválida, use: $0 {start|stop|restart|reload|status|add|remove|saveconf}"; exit 1
 esac
 
 exit 0
