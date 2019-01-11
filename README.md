@@ -5,7 +5,7 @@ gerenciador de firewall com com iptables.
 COLOCANDO O SCRIPT PARA INICIAR COM O SISTEMA
 EXECUTE OS COMANDO ABAIXO COMO ROOT.
 
-1 - BAIXE OS ARQUIVO COM O COMANDO: 
+1 - BAIXE OS ARQUIVO COM O COMANDO: git clone https://github.com/elizot/Projeto-Programacao-de-Script.git
 
 2 - CRIE O DIRETORIO:
 mkdir /etc/firewall
