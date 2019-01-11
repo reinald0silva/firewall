@@ -13,17 +13,17 @@ mkdir /etc/firewall
 3 - COPIAR O ARQUIVO PARA /etc/firewall/: 
 cp /home/diretorio/firewall.sh /etc/firewall/
 
-4 - CRIE UM LINK SIMBOLICO DO ARQUIVO PARA O DIRETORI /etc/init.d
+4 - CRIE UM LINK SIMBOLICO DO ARQUIVO PARA O DIRETORI /etc/init.d: 
 ln -s /etc/firewall/firewall.sh /etc/init.d
 
-5 - ENTRE NO DIRETORI /etc/init.d
+5 - ENTRE NO DIRETORI /etc/init.d: 
 cd /etc/init.d
 
 
-6 - COLOCANDO O SCRIPT NA INICIALIZAÇÃO
+6 - COLOCANDO O SCRIPT NA INICIALIZAÇÃO: 
 update-rc.d firewall.sh defaults
 
-7 - TORNE O SCRIPT EXECUTAVEL
+7 - TORNE O SCRIPT EXECUTAVEL: 
  chmod +x /etc/firewall/firewall.sh
 
 
