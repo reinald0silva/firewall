@@ -10,7 +10,7 @@ EXECUTE OS COMANDO ABAIXO COMO ROOT.
 2 - CRIE O DIRETORIO:
 mkdir /etc/firewall
 
-3 - COPIAR O ARQUIVo: 
+3 - COPIAR O ARQUIVO: 
 cp /home/diretorio/firewall.sh /etc/firewall/
 
 4 - CRIE UM LINK SIMBOLICO DO ARQUIVO PARA O DIRETORIO: 
