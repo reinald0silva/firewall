@@ -38,59 +38,76 @@ echo -e "\t [ ${VERM} Criando Regras Ipv4 ${NC} ]"
 	$IPT4 -F
 	$IPT4 -t nat -F
 	$IPT4 -t mangle -F
+echo "Limpando as Regras .....................................[ ${VERD}OK${NC} ]"
 #Limpando Chains
 	$IPT4 -X
 	$IPT4 -t nat -X
 	$IPT4 -t mangle -X
+echo "Limpando as Chains .....................................[ ${VERD}OK${NC} ]"
 # Zerando contadores
 	$IPT4 -Z
 	$IPT4 -t nat -Z
 	$IPT4 -t mangle -Z
+echo "Zerando Contadores .....................................[ ${VERD}OK${NC} ]"
 # Descartando tudo! Politica padrao.
 	$IPT4 -P INPUT DROP
 	$IPT4 -P OUTPUT ACCEPT
 	$IPT4 -P FORWARD DROP
+echo "Descartando Politicas ..................................[ ${VERD}OK${NC} ]"
 # Liberando loopback:
 	$IPT4 -A INPUT -i lo -j ACCEPT
 	$IPT4 -A OUTPUT -o lo -j ACCEPT
+echo "Liberando Loopback .....................................[ ${VERD}OK${NC} ]"
 # Bloqueando ping requests:
 	$IPT4 -A INPUT -p icmp -icmp-type echo-request -j DROP
-# Bloqueando tracertroute
+echo "Bloqueando Ping Requests ...............................[ ${VERD}OK${NC} ]"
+# Bloqueando traceroute
 	$IPT4 -A INPUT -p udp -s 0/0 -i eth1 --dport 33435:33525 -j DROP
+echo "Bloqueando Traceroute ..................................[ ${VERD}OK${NC} ]"
 # Bloqueando pacotes invalidos.
 	$IPT4 -A INPUT -m state --state INVALID -j DROP
+echo "Bloqueando Pacotes Invalidos............................[ ${VERD}OK${NC} ]"
 # Log firewall
 	$IPT4 -A INPUT -p tcp --dport 22 -j LOG --log-prefix "Serviço: SSH"
+echo "Ativando LOG na porta 22................................[ ${VERD}OK${NC} ]"
 
 echo -e "\t [ ${VERD} Criando Regras Ipv6 ${NC} ]"
-
 # Limpando regras Existentes:
 	$IPT6 -F
 	$IPT6 -t nat -F
 	$IPT6 -t mangle -F
+echo "Limpando as Regras .....................................[ ${VERD}OK${NC} ]"
 #Limpando Chains
 	$IPT6 -X
 	$IPT6 -t nat -X
 	$IPT6 -t mangle -X
+echo "Limpando as Chains .....................................[ ${VERD}OK${NC} ]"
 # Zerando contadores
 	$IPT6 -Z
 	$IPT6 -t nat -Z
 	$IPT6 -t mangle -Z
+echo "Zerando Contadores .....................................[ ${VERD}OK${NC} ]"
 # Descartando tudo! Politica padrao.
 	$IPT6 -P INPUT DROP
 	$IPT6 -P OUTPUT ACCEPT
 	$IPT6 -P FORWARD DROP
+echo "Descartando Politicas ..................................[ ${VERD}OK${NC} ]"
 # Liberando loopback:
 	$IPT6 -A INPUT -i lo -j ACCEPT
 	$IPT6 -A OUTPUT -o lo -j ACCEPT
+echo "Liberando Loopback .....................................[ ${VERD}OK${NC} ]"
 # Bloqueando ping requests:
 	$IPT6 -A INPUT -p icmp -icmp-type echo-request -j DROP
+echo "Bloqueando Ping Requests ...............................[ ${VERD}OK${NC} ]"
 # Bloqueando tracertroute
 	$IPT6 -A INPUT -p udp -s 0/0 -i eth1 --dport 33435:33525 -j DROP
+echo "Bloqueando Traceroute ..................................[ ${VERD}OK${NC} ]"
 # Bloqueando pacotes invalidos.
 	$IPT6 -A INPUT -m state --state INVALID -j DROP
+echo "Bloqueando Pacotes Invalidos............................[ ${VERD}OK${NC} ]"
 # Log firewall
 	$IPT6 -A INPUT -p tcp --dport 22 -j LOG --log-prefix "Serviço: SSH"
+echo "Ativando LOG na porta 22................................[ ${VERD}OK${NC} ]"
 }
 
 function _stop()
@@ -100,36 +117,44 @@ echo -e "\t [ ${VERM} Removendo Regras Ipv4 ${NC} ]"
 	$IPT4 -F
 	$IPT4 -t nat -F
 	$IPT4 -t mangle -F
+echo "Limpando as Regras .....................................[ ${VERD}OK${NC} ]"
 #Limpando Chains
 	$IPT4 -X
 	$IPT4 -t nat -X
 	$IPT4 -t mangle -X
+echo "Limpando as Chains .....................................[ ${VERD}OK${NC} ]"
 # Zerando contadores
 	$IPT4 -Z
 	$IPT4 -t nat -Z
 	$IPT4 -t mangle -Z
+echo "Zerando Contadores .....................................[ ${VERD}OK${NC} ]"
 # Descartando tudo! Politica padrao.
-	$IPT4 -P INPUT ACCEPT
+	$IPT4 -P INPUT DROP
 	$IPT4 -P OUTPUT ACCEPT
-	$IPT4 -P FORWARD ACCEPT
+	$IPT4 -P FORWARD DROP
+echo "Descartando Politicas ..................................[ ${VERD}OK${NC} ]"
 
 echo -e "\t [ ${VERD} Removendo Regras Ipv6 ${NC} ]"
 # Limpando regras Existentes:
 	$IPT6 -F
 	$IPT6 -t nat -F
 	$IPT6 -t mangle -F
+echo "Limpando as Regras .....................................[ ${VERD}OK${NC} ]"
 #Limpando Chains
 	$IPT6 -X
 	$IPT6 -t nat -X
 	$IPT6 -t mangle -X
+echo "Limpando as Chains .....................................[ ${VERD}OK${NC} ]"
 # Zerando contadores
 	$IPT6 -Z
 	$IPT6 -t nat -Z
 	$IPT6 -t mangle -Z
+echo "Zerando Contadores .....................................[ ${VERD}OK${NC} ]"
 # Descartando tudo! Politica padrao.
-	$IPT6 -P INPUT ACCEPT
+	$IPT6 -P INPUT DROP
 	$IPT6 -P OUTPUT ACCEPT
-	$IPT6 -P FORWARD ACCEPT
+	$IPT6 -P FORWARD DROP
+echo "Descartando Politicas ..................................[ ${VERD}OK${NC} ]"
 }
 
 function _status()
