@@ -170,9 +170,9 @@ function  _add_regras()
 	echo -e "Obs: informe a regra como no ex.: (-A OUTPUT -p tcp --dport xxx -j DROP).\n"
 	select op in add_ipv4 add_ipv6 sair; do
 		case op in
-			1) read -p "REGRA: " regra; $IPT4 ${regra}; echo -e "${VERD} *Regra adicionada ${NC}\n";;
-			2) read -p "REGRA: " regra; $IPT6 ${regra}; echo -e "${VERD} *Regra adicionada ${NC}\n";;
-			3) break ;;
+			1) _help_add;read -p "REGRA: " regra; $IPT4 ${regra}; echo -e "${VERD} *Regra adicionada ${NC}\n";;
+			2) _help_add;read -p "REGRA: " regra; $IPT6 ${regra}; echo -e "${VERD} *Regra adicionada ${NC}\n";;
+			3) _help_add;break ;;
 			*) echo " * Opção inválida!" exit 1
 		esac
 	done
@@ -182,12 +182,51 @@ function _remove_regras()
 	echo -e "Obs: informe a regra como no ex.: (-D OUTPUT -p tcp --dport 22 -j DROP).\n"
 	select op in add_ipv4 add_ipv6 sair; do
 		case op in
-			1) read -p "REGRA IPV4: " regra; $IPT4 ${regra}; echo -e "${VERM} *Regra removida ${NC}\n";;
-			2) read -p "REGRA IPV6: " regra; $IPT6 ${regra}; echo -e "${VERM} *Regra removida ${NC}\n";;
+			1) _help_remove;read -p "REGRA IPV4: " regra; $IPT4 ${regra}; echo -e "${VERM} *Regra removida ${NC}\n";;
+			2) _help_remove;read -p "REGRA IPV6: " regra; $IPT6 ${regra}; echo -e "${VERM} *Regra removida ${NC}\n";;
 			3) break ;;
 			*) echo " * Opção inválida!" exit 1
 		esac
 	done
+}
+function _help_add()
+{
+	echo "-A -> Adiciona uma regra no fim da lista."
+	echo "-I -> Insere uma regra no início da lista."
+	echo "-i -> Especifica a interface de entrada utilizada pela regra. "
+	echo "-o -> Especifica a interface de saída utilizada pela regra."
+	echo "-s -> Especifica o endereço ou a rede de origem utilizada pela regra."
+	echo "-d -> Especifica o endereço ou a rede de destino utilizado pela regra."
+	echo "-j -> Utilizado para aplicar um alvo a regra, ser ACCEPT, DROP, REJECT e LOG. Ex: -j ACCEPT."
+	echo "--sport -> Especifica a porta de origem utilizada. Ex: -p tcp --sport 25."
+	echo "--dport -> Especifica a porta de destino utilizada. Ex: -p tcp --dport 25."
+	echo "ACCEPT -> Aceita a entrada ou passagem do pacote."
+	echo "DROP -> Descarta o pacote."
+	echo "REJECT -> Descarta o pacote, porém diferente de DROP."
+	echo "LOG -> Gera um log no sistema."
+	echo "RETURN -> Retorna o processamento da chain anterior."
+	echo "QUEUE -> Encarrega um programa de administrar o fluxo atribuído ao mesmo."
+	echo "SNAT -> Altera o endereço de origem do pacote."
+	echo "DNAT -> Altera o endereço de destino do pacote."
+	echo "REDIRECT -> Redireciona a porta do pacote juntamente com a opção --to-port."
+	echo "TOS -> Prioriza a entrada e saída de pacotes baseado em seu tipo de serviço."
+}
+
+function _help_remove()
+{
+	echo "-D , --delete  cadeia  regra-especificação" 
+	echo "-D , --delete  cadeia  rulenum"
+    echo "Exclua uma ou mais regras da cadeia selecionada. "
+    echo "Existem duas versões deste comando: a regra pode ser especificada "
+    echo "como um número na cadeia (começando em 1 para a primeira regra) ou "
+    echo "uma regra para partida."
+    echo
+    echo "-R , --replace  cadeia  rulenum  regra-especificação"
+    echo "Substitua uma regra na cadeia selecionada."
+    echo "As regras são numeradas começando em 1. iptables --line-numbers"
+    echo
+    echo " iptables -L  --line-numbers. Ao listar regras, adicionA números de" 
+    echo "linha ao início de cada regra, correspondendo a essa regra posição na cadeia."
 }
 
 case "$1" in
