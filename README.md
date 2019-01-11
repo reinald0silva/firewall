@@ -25,6 +25,9 @@ update-rc.d firewall.sh defaults
 
 7 - TORNE O SCRIPT EXECUTAVEL: 
  chmod +x /etc/firewall/firewall.sh
+ 
+8 - CASO QUEIRA REMOVER O SCRIPT DA INICIALIZAÇÃO: 
+update-rc.d -f firewall.sh remove
 
 
 
