@@ -10,13 +10,13 @@ EXECUTE OS COMANDO ABAIXO COMO ROOT.
 2 - CRIE O DIRETORIO:
 mkdir /etc/firewall
 
-3 - COPIAR O ARQUIVO PARA /etc/firewall/: 
+3 - COPIAR O ARQUIVo: 
 cp /home/diretorio/firewall.sh /etc/firewall/
 
-4 - CRIE UM LINK SIMBOLICO DO ARQUIVO PARA O DIRETORI /etc/init.d: 
+4 - CRIE UM LINK SIMBOLICO DO ARQUIVO PARA O DIRETORIO: 
 ln -s /etc/firewall/firewall.sh /etc/init.d
 
-5 - ENTRE NO DIRETORI /etc/init.d: 
+5 - ENTRE NO DIRETORIO: 
 cd /etc/init.d
 
 
