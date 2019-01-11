@@ -9,6 +9,11 @@
 # Description:       Enable service provided by firewall.sh.
 ### END INIT INFO
 
+# local dos logs do iptables que por padrão estarão em /var/log/messages ou 
+# em /var/log/kern.log, dependendo da sua distro.
+
+
+
 IPT4=$(which iptables) #/sbin/iptables
 IPT6=$(which ip6tables) #/sbin/iptables
 
@@ -35,17 +40,25 @@ function _menu_firewall()
 		echo "+-----------------------------------------------+"
 }
 
-function _start_fw()
+function _start()
 {
-echo -e "\t [ ${VERM} Regras Ipv4 ${NC} ]"
+echo -e "\t [ ${VERM} Criando Regras Ipv4 ${NC} ]"
 # Limpando regras Existentes:
-	$IPT4 -t filter -F
+	$IPT4 -F
 	$IPT4 -t nat -F
 	$IPT4 -t mangle -F
+#Limpando Chains
+	$IPT4 -X
+	$IPT4 -t nat -X
+	$IPT4 -t mangle -X
+# Zerando contadores
+	$IPT4 -Z
+	$IPT4 -t nat -Z
+	$IPT4 -t mangle -Z
 # Descartando tudo! Politica padrao.
 	$IPT4 -P INPUT DROP
+	$IPT4 -P OUTPUT ACCEPT
 	$IPT4 -P FORWARD DROP
-	$IPT4 -P OUTPUT DROP
 # Liberando loopback:
 	$IPT4 -A INPUT -i lo -j ACCEPT
 	$IPT4 -A OUTPUT -o lo -j ACCEPT
@@ -55,17 +68,27 @@ echo -e "\t [ ${VERM} Regras Ipv4 ${NC} ]"
 	$IPT4 -A INPUT -p udp -s 0/0 -i eth1 --dport 33435:33525 -j DROP
 # Bloqueando pacotes invalidos.
 	$IPT4 -A INPUT -m state --state INVALID -j DROP
+# Log firewall
+	$IPT4 -A INPUT -p tcp --dport 22 -j LOG --log-prefix "Serviço: SSH"
 
-echo -e "\t [ ${VERD} Regras Ipv6 ${NC} ]"
+echo -e "\t [ ${VERD} Criando Regras Ipv6 ${NC} ]"
 
 # Limpando regras Existentes:
-	$IPT6 -t filter -F
+	$IPT6 -F
 	$IPT6 -t nat -F
 	$IPT6 -t mangle -F
+#Limpando Chains
+	$IPT6 -X
+	$IPT6 -t nat -X
+	$IPT6 -t mangle -X
+# Zerando contadores
+	$IPT6 -Z
+	$IPT6 -t nat -Z
+	$IPT6 -t mangle -Z
 # Descartando tudo! Politica padrao.
 	$IPT6 -P INPUT DROP
+	$IPT6 -P OUTPUT ACCEPT
 	$IPT6 -P FORWARD DROP
-	$IPT6 -P OUTPUT DROP
 # Liberando loopback:
 	$IPT6 -A INPUT -i lo -j ACCEPT
 	$IPT6 -A OUTPUT -o lo -j ACCEPT
@@ -75,5 +98,45 @@ echo -e "\t [ ${VERD} Regras Ipv6 ${NC} ]"
 	$IPT6 -A INPUT -p udp -s 0/0 -i eth1 --dport 33435:33525 -j DROP
 # Bloqueando pacotes invalidos.
 	$IPT6 -A INPUT -m state --state INVALID -j DROP
-	
+# Log firewall
+	$IPT6 -A INPUT -p tcp --dport 22 -j LOG --log-prefix "Serviço: SSH"
 }
+
+function _stop()
+{
+echo -e "\t [ ${VERM} Removendo Regras Ipv4 ${NC} ]"
+# Limpando regras Existentes:
+	$IPT4 -F
+	$IPT4 -t nat -F
+	$IPT4 -t mangle -F
+#Limpando Chains
+	$IPT4 -X
+	$IPT4 -t nat -X
+	$IPT4 -t mangle -X
+# Zerando contadores
+	$IPT4 -Z
+	$IPT4 -t nat -Z
+	$IPT4 -t mangle -Z
+# Descartando tudo! Politica padrao.
+	$IPT4 -P INPUT ACCEPT
+	$IPT4 -P OUTPUT ACCEPT
+	$IPT4 -P FORWARD ACCEPT
+
+echo -e "\t [ ${VERD} Removendo Regras Ipv6 ${NC} ]"
+# Limpando regras Existentes:
+	$IPT6 -F
+	$IPT6 -t nat -F
+	$IPT6 -t mangle -F
+#Limpando Chains
+	$IPT6 -X
+	$IPT6 -t nat -X
+	$IPT6 -t mangle -X
+# Zerando contadores
+	$IPT6 -Z
+	$IPT6 -t nat -Z
+	$IPT6 -t mangle -Z
+# Descartando tudo! Politica padrao.
+	$IPT6 -P INPUT ACCEPT
+	$IPT6 -P OUTPUT ACCEPT
+	$IPT6 -P FORWARD ACCEPT
+} 
