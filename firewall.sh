@@ -1,4 +1,5 @@
 #!/bin/bash
+
 #CORES PARA IMPLEMENTAÇÃO DO CODIGO.
 VM='\033[1;31m' #vermelho
 VD='\033[1;32m' #verde
@@ -142,7 +143,6 @@ function _salvar_regras_atu()
 	fi
 	read -p "Precione Enter Para Contiunar..." x
 }
-
 #RESTAURA O BACKUP DAS REGRAS SALVAR PELA FUNÇÃO ANTERIOR.
 function _restaurar_regras_sv()
 {
@@ -181,6 +181,207 @@ function _restaurar_regras_sv()
 	fi
 	echo
 	read -p "Precione Enter Para Contiunar..." x
+}
+
+function _adicionar_regras()
+{
+	_top
+	echo -e "\t[${VD}Adicionar Regras ao Firewall${NC}]\n"
+	for ((i=1;i>0;i++));do
+		echo -e "${VM}[1]${NC} - ${AM}Abrir ou Bloquear uma porta.${NC}"
+		echo -e "${VM}[2]${NC} - ${AM}Abrir ou Bloquear Ping. ${NC} " 
+		echo -e "${VM}[3]${NC} - ${AM}Abrir ou Bloquer um conjunto de portas.${NC}" 
+		echo -e "${VM}[4]${NC} - ${AM}Abrir ou Bloquear para uma faixa de endereços.${NC}"
+		echo -e "${VM}[5]${NC} - ${AM}Abrir ou Bloquear uma porta para um IP específico.${NC}"
+		echo -e "${VM}[6]${NC} - ${AM}Verificar IP e MAC antes de autorizar a conexão.${NC}"
+		echo -e "${VM}[7]${NC} - ${AM}Abrir ou Bloquear um intervalo de portas.${NC}"
+		echo -e "${VM}[8]${NC} - ${AM}Abrir LOG para uma porta.${NC}"
+		echo -e "${VM}[0]${NC} - ${VM}Sair.${NC}"
+		read -p "Selecione uma opção: " OP
+		case $OP in
+			1) _AB_PORT;break ;;
+			2) _AB_PING ;break ;; 
+			3) _AB_CONJ_PORT;break ;; 
+			4) _AB_FAIX_END_IP;break ;;
+			5) _AB_PORT_FOR_IP_ESPC;break ;;
+			7) _VERIFY_IP_MAC;break ;;
+			8) _LOG_PORT;break ;;
+			0) break ;;
+			*)  echo "**Opção Invalida!"
+		esac
+	done
+}
+function _AB_PORT()
+{
+	_top
+	PS3="Escolha uma opção acima: "
+	echo -e "\t${AZ}Abrir ou Bloquear uma porta.${NC}\n"
+	select OP in ABRIR BLOQUEAR sair; do
+		case ${REPLY} in 
+			1) read -p "Informe a porta: " PORT
+			   $IPT4 -A INPUT -p tcp --dport $PORT -j ACCEPT
+			   echo -e "${AZ}Status Porta${NC} ${AM}$PORT${NC}......................[${PS}${VD}Open${NC}]\n"
+			   read -p "Precione Enter Para Contiunar..." x; break ;;
+			2) read -p "Informe a porta: " PORT
+			   $IPT4 -A INPUT -p tcp --dport $PORT -j DROP
+			   echo -e "${AZ}Status Porta${NC} ${AM}$PORT${NC}...................[${PS}${VM}Blocked${NC}]\n"
+			   read -p "Precione Enter Para Contiunar..." x; break ;;
+			3) break ;;
+			*) echo "${VM}Opção Invalida!${NC}"
+		esac
+	done
+
+}
+function _AB_PING()
+{
+	_top
+	PS3="Escolha uma opção acima: "
+	echo -e "\t${AZ}Abrir ou Bloquear Ping.${NC}\n"
+	select OP in ABRIR BLOQUEAR sair; do
+		case ${REPLY} in 
+			1) $IPT4 -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
+			echo -e "${AZ}Status Ping${NC}......................[${PS}${VD}Open${NC}]\n"
+			   read -p "Precione Enter Para Contiunar..." x;break ;;
+			2) $IPT4 -A INPUT -p icmp --icmp-type echo-request -j DROP
+			echo -e "${AZ}Status Ping${NC}...................[${PS}${VM}Blocked${NC}]\n"
+			   read -p "Precione Enter Para Contiunar..." x;break ;;
+			3) break ;;
+			*) echo "${VM}Opção Invalida!${NC}"
+		esac
+	done
+
+}
+function _AB_CONJ_PORT()
+{
+	_top
+	PS3="Escolha uma opção acima: "
+	echo -e "\t${AZ}Abrir ou Bloquer um conjunto de portas.${NC}\n"
+	select OP in ABRIR BLOQUEAR sair; do
+		case ${REPLY} in 
+			1) read -p "Informe as porta ex. (22,80,...): " PORTS
+			   $IPT4 -A INPUT -m multiport -p tcp --dport ${PORTS} -j ACCEPT
+			   echo -e "${AZ}Status Portas:${NC} ${AM}${PORTS}${NC}.........................[${PS}${VD}Open${NC}]\n"
+			   read -p "Precione Enter Para Contiunar..." x; break ;;
+			2) read -p "Informe as porta ex. (22,80,...): " PORTS
+			   $IPT4 -A INPUT -m multiport -p tcp --dport ${PORTS} -j DROP
+			   echo -e "${AZ}Status Portas:${NC} ${AM}${PORTS}${NC}......................[${PS}${VM}Blocked${NC}]\n"
+			   read -p "Precione Enter Para Contiunar..." x;break ;;
+			3) break ;;
+			*) echo "${VM}Opção Invalida!${NC}"
+		esac
+	done
+}
+function _AB_FAIX_END_IP()
+{
+	_top
+	PS3="Escolha uma opção acima: "
+	echo -e "\t${AZ}Abrir ou Bloquear para uma faixa de endereços.${NC}\n"
+	select OP in ABRIR BLOQUEAR sair; do
+		case ${REPLY} in 
+			1) read -p "Informe a faixa de endereços ex.(192.168.1.0/255.255.255.0): " FAIXAENDIP
+			   $IPT4 -A INPUT -s ${FAIXAENDIP} -j ACCEPT
+			   echo -e "${AZ}Status Faixa:${NC} ${AM}${FAIXAENDIP}${NC}.........................[${PS}${VD}Open${NC}]\n"
+			   read -p "Precione Enter Para Contiunar..." x; break ;;
+			2) read -p "Informe a faixa de endereços ex.(192.168.1.0/255.255.255.0): " FAIXAENDIP
+			   $IPT4 -A INPUT -s ${FAIXAENDIP} -j DROP
+			   echo -e "${AZ}Status Faixa:${NC} ${AM}${FAIXAENDIP}${NC}......................[${PS}${VM}Blocked${NC}]\n"
+			   read -p "Precione Enter Para Contiunar..." x; break ;;
+			3) break ;;
+			*) echo "${VM}Opção Invalida!${NC}"
+		esac
+	done
+
+}
+function _AB_PORT_FOR_IP_ESPC()
+{
+	_top
+	PS3="Escolha uma opção acima: "
+	echo -e "\t${AZ}Abrir ou Bloquear uma porta para um IP específico.${NC}\n"
+	select OP in ABRIR BLOQUEAR sair; do
+		case ${REPLY} in 
+			1) read -p "Informe a porta: " PORT
+			   read -p "Informe o ip: " IP
+			   $IPT4 -A INPUT -p tcp -s ${IP} --dport $PORT -j ACCEPT
+			   echo -e "${AZ}Status IP:${NC}${AM}${IP}${NC} ${AZ}para MAC:${NC}${AM}${PORT}${NC}.........................[${PS}${VD}Open${NC}]\n"
+			   read -p "Precione Enter Para Contiunar..." x;break ;;
+			2) read -p "Informe a porta: " PORT
+			   read -p "Informe o ip: " IP
+			   $IPT4 -A INPUT -p tcp -s ${IP} --dport $PORT -j DROP
+			   echo -e "${AZ}Status IP:${NC}${AM}${IP}${NC} ${AZ}para MAC:${NC}${AM}${PORT}${NC}......................[${PS}${VM}Blocked${NC}]\n"
+			   read -p "Precione Enter Para Contiunar..." x;break ;;
+			3) break ;;
+			*) echo "${VM}Opção Invalida!${NC}"
+		esac
+	done
+
+}
+function _VERIFY_IP_MAC()
+{
+	_top
+	PS3="Escolha uma opção acima: "
+	echo -e "\t${AZ}Verificar IP e MAC antes de autorizar a conexão.${NC}\n"
+	select OP in ABRIR BLOQUEAR sair; do
+		case ${REPLY} in 
+			1) read -p "Informe a mac: " MAC
+			   read -p "Informe o ip: " IP
+			   $IPT4 -A INPUT -s ${IP} -m mac --mac-source ${MAC} -j ACCEPT
+			   echo -e "${AZ}Status IP:${NC}${AM}${IP}${NC} ${AZ}para MAC:${NC}${AM}${MAC}${NC}.........................[${PS}${VD}Open${NC}]\n"
+			   read -p "Precione Enter Para Contiunar..." x; break ;;
+			2) read -p "Informe a mac: " MAC
+			   read -p "Informe o ip: " IP
+			   $IPT4 -A INPUT -s ${IP} -m mac --mac-source ${MAC} -j DROP
+			   echo -e "${AZ}Status IP:${NC}${AM}${IP}${NC} ${AZ}para MAC:${NC}${AM}${MAC}${NC}......................[${PS}${VM}Blocked${NC}]\n"
+			   read -p "Precione Enter Para Contiunar..." x; break ;;
+			3) break ;;
+			*) echo "${VM}Opção Invalida!${NC}"
+		esac
+	done
+}
+function _AB_INTERVALO_PORT()
+{
+	_top
+	PS3="Escolha uma opção acima: "
+	echo -e "\t${AZ}Abrir ou Bloquear um intervalo de portas.${NC}\n"
+	select OP in ABRIR BLOQUEAR sair; do
+		case ${REPLY} in 
+			1) read -p "Informe o intervalo ex. (6881:6889): " INTER
+			   $IPT4 -A INPUT -p tcp --dport ${INTER} -j ACCEPT
+			   echo -e "${AZ}Status intervalo:${NC}${AM}${INTER}${NC}........................[${PS}${VD}Open${NC}]\n"
+			   read -p "Precione Enter Para Contiunar..." x; break ;;
+			2) read -p "Informe o intervalo ex. (6881:6889): " INTER
+			   $IPT4 -A INPUT -p tcp --dport ${INTER} -j DROP
+			   echo -e "${AZ}Status intervalo:${NC}${AM}${INTER}${NC}.....................[${PS}${VM}Blocked${NC}]\n"
+			   read -p "Precione Enter Para Contiunar..." x; break ;;
+			3) break ;;
+			*) echo "${VM}Opção Invalida!${NC}"
+		esac
+	done
+
+}
+function _LOG_PORT()
+{
+	_top
+	echo -e "\t${AZ}Abrir LOG para uma porta.${NC}\n"
+	read -p "Informe a porta: " PORT
+	read -p "Informe o prefixo para log ex.( acesso ssh): " PREFIX
+	$IPT4 -A INPUT -p tcp --dport=${PORT} -j LOG --log-level warning --log-prefix "${PREFIX}"
+	echo -e "${AZ}Status Log port:${NC}${AM}${PORT}${NC}.....................[${PS}${VD}Log Accept${NC}]\n"
+	read -p "Precione Enter Para Contiunar..." x;
+}
+#FUNÇÃO COM MENU DE SELEÇÃO PARA ESCOLHER QUEL CADEIA IRA INICIAR PARA FAZER A REMOÇÃO DAS REGRAS.
+function _remove_regras_cadeias()
+{
+	_top
+	PS3="Selecione uma cadeia acima: "
+	select OP in INPUT FORWARD OUTPUT sair; do
+		case ${REPLY} in 
+			1) _INPUT_RM; break ;;
+			2) _FORWARD_RM; break ;;
+			3) _OUTPUT_RM; break ;;
+			4) break ;;
+			*) echo -e "${VM}Opção Invalida!${NC}"
+		esac
+	done
 }
 
 #FUNÇÃO PARA EXECUTAR A REMOÇÃO DAS REGRAS PELO INDICE DE CADA REGRAS DA CADEIA INPUT.
@@ -228,26 +429,10 @@ function _OUTPUT_RM()
 	fi	
 	read -p "Precione Enter Para Contiunar..." x
 }
-
-#FUNÇÃO COM MENU DE SELEÇÃO PARA ESCOLHER QUEL CADEIA IRA INICIAR PARA FAZER A REMOÇÃO DAS REGRAS.
-function _remove_regras_cadeias()
-{
-	_top
-	PS3="Selecione uma cadeia acima: "
-	select OP in INPUT FORWARD OUTPUT sair; do
-		case ${REPLY} in 
-			1) _INPUT_RM; break ;;
-			2) _FORWARD_RM; break ;;
-			3) _OUTPUT_RM; break ;;
-			4) break ;;
-			*) echo -e "${VM}Opção Invalida!${NC}"
-		esac
-	done
-}
 #FUNÇÃO COM MENU PRINCIPAL DE SELEÇÃO PARA ESCOLHA.
 for ((i=1;i>0;i++)); do
 	_top
-	echo -e "${VM}[1]${NC} - ${AM}Iniciar Firewall.${NC}"
+	echo -e "${VM}[1]${NC} - ${AM}Iniciar Firewall.${NC}" #FEITO
 	echo -e "${VM}[2]${NC} - ${AM}Parar Firewall. ${NC} " #FEITO
 	echo -e "${VM}[3]${NC} - ${AM}Status Firewall.${NC}" #FEITO
 	echo -e "${VM}[4]${NC} - ${AM}Salvar Regras Atuais.${NC}" #FEITO
@@ -262,9 +447,9 @@ for ((i=1;i>0;i++)); do
 			3) _status ;; 
 			4) _salvar_regras_atu ;;
 			5) _restaurar_regras_sv ;;
+			6) _adicionar_regras ;;
 			7) _remove_regras_cadeias ;;
 			0) break ;;
 			*)  echo "**Opção Invalida!"
 		esac
 done
-
