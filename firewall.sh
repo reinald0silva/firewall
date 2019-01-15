@@ -25,6 +25,55 @@ function _top()
 	echo -e "\t${VM}┬┴┬┴┤${NC}${AZ}(◣_◢)${NC}${VM}├┬┴┬┴${NC}\n"
 }
 
+
+function _start_question()
+{
+	PS3="Deseja Iniciar o Firewall: "
+	select OP in sim nao; do
+		case ${REPLY} in 
+			1|sim|s) _start; break;;
+			2|nao|n) echo -e "${VM}Firewall Não Abilitado!${NC}"
+					read -p "Precione Enter Para Contiunar..." x; break ;;
+			*) echo "${VM}Opção Invalida!${NC}"
+		esac
+	done
+}
+
+function _start()
+{
+	_top
+	echo -e "\t[${VD}Iniciando Firewall${NC}]\n"
+	sleep 3
+	echo -e "\t[${VD}Definindo Politicas Padrões${NC}]\n"
+	$IPT4  -P  INPUT DROP  # iptables a política padrão da chain INPUT é proibir tudo
+	$IPT4  -P  FORWARD DROP
+	$IPT4  -P  OUTPUT ACCEPT
+	$IPT6 -P INPUT DROP
+	$IPT6 -P FORWARD DROP
+	$IPT6 -P OUTPUT ACCEPT
+	echo -e "Politicas ....................................[${PS}${VD}OK${NC}]\n"
+	echo -e "\t[${VD}Liberando loopback${NC}]\n"
+	$IPT4 -A  INPUT -i lo -j ACCEPT
+	$IPT4 -A OUTPUT -o lo -j ACCEPT
+	echo -e "Loopback......................................[${PS}${VD}OK${NC}]\n"
+	echo -e "\t[${VD}Liberando o Estabelecimento de Novas Conexões${NC}]\n"
+	$IPT4 -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+	$IPT4 -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED,NEW -j ACCEPT
+	echo -e "Liberação de Novas Conexões...................[${PS}${VD}OK${NC}]\n"
+	echo -e "\t[${VD}Liberando Portas${NC}]\n"
+	$IPT4 -A INPUT -p tcp --dport 22 -j ACCEPT
+	echo -e "Porta 22 SSH................................[${PS}${VD}Open${NC}]\n"
+	$IPT4 -A INPUT -p tcp --dport 115 -j ACCEPT
+	echo -e "Porta 115 SFTP..............................[${PS}${VD}Open${NC}]\n"
+	echo -e "\t[${VD}Criando LOGs${NC}]\n"
+	$IPT4 -A INPUT -p tcp --dport=22 -j LOG --log-level warning --log-prefix "Acesso SSH pela porta 22 - TCP"
+	$IPT4 -A INPUT -p udp --dport=22 -j LOG --log-level warning --log-prefix "Acesso SSH pela porta 22 - UDP"
+	$IPT4 -A INPUT -p tcp --dport=115 -j LOG --log-level warning --log-prefix "Acesso SFTP pela porta 115"
+	$IPT4 -A INPUT -p icmp  -j LOG --log-level warning --log-prefix "Tentativa de Ping"
+	echo -e "LOGs..........................................[${PS}${VD}OK${NC}]\n"
+	read -p "Precione Enter Para Contiunar..." x
+}
+
 function _stop_firewall()
 {
 	_top
@@ -200,15 +249,16 @@ function _remove_regras_cadeias()
 for ((i=1;i>0;i++)); do
 	_top
 	echo -e "${VM}[1]${NC} - ${AM}Iniciar Firewall.${NC}"
-	echo -e "${VM}[2]${NC} - ${AM}Parar Firewall.${NC} "
+	echo -e "${VM}[2]${NC} - ${AM}Parar Firewall. ${NC} " #FEITO
 	echo -e "${VM}[3]${NC} - ${AM}Status Firewall.${NC}" #FEITO
 	echo -e "${VM}[4]${NC} - ${AM}Salvar Regras Atuais.${NC}" #FEITO
 	echo -e "${VM}[5]${NC} - ${AM}Restaurar Regras Salvas.${NC}" #FEITO
 	echo -e "${VM}[6]${NC} - ${AM}Adicionar Regras.${NC}"
 	echo -e "${VM}[7]${NC} - ${AM}Remover Regras.${NC}" #FEITO
-	echo -e "${VM}[0]${NC} - ${VM}Sair.${NC}"
+	echo -e "${VM}[0]${NC} - ${VM}Sair.${NC}" #FEITO
 	read -p "Selecione uma opção: " OP
 		case $OP in
+			1) _start_question ;;
 			2) _stop_firewall ;; 
 			3) _status ;; 
 			4) _salvar_regras_atu ;;
