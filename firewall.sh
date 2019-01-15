@@ -1,5 +1,4 @@
 #!/bin/bash
-
 #CORES PARA IMPLEMENTAÇÃO DO CODIGO.
 VM='\033[1;31m' #vermelho
 VD='\033[1;32m' #verde
