@@ -25,16 +25,37 @@ function _top()
 	echo -e "\t${VM}┬┴┬┴┤${NC}${AZ}(◣_◢)${NC}${VM}├┬┴┬┴${NC}\n"
 }
 
-#function _stop_firewall()
-#{}
+function _stop_firewall()
+{
+	_top
+	echo -e "\t[${PS}${VD}Limpando Regras${NC}]\n"
+	$IPT4 -P INPUT ACCEPT
+	$IPT4 -P FORWARD ACCEPT
+	$IPT4 -P OUTPUT ACCEPT
+	$IPT6 -P INPUT ACCEPT
+	$IPT6 -P FORWARD ACCEPT
+	$IPT6 -P OUTPUT ACCEPT
+	$IPT4 -F
+	$IPT4 -X
+	$IPT6 -F
+	$IPT6 -X
+	$IPT4 -t nat -F
+	$IPT4 -t nat -X
+	$IPT4 -t mangle -F
+	$IPT4 -t mangle -X
+	$IPT6 -t mangle -F
+	$IPT6 -t mangle -X
+	echo -e "${AZ}Firewall Desativando${NC}...........................[${PS}${VD}OK${NC}]\n"
+	read -p "Precione Enter Para Contiunar..." x	
+}
 
 #FUNÇÃO ONDE MOSTRA AS REGRAS JÁ ABILITADAS NO FIREWALL-IPTABLES.
 function _status()
 {
 	_top
-	echo -e "\t[${PS}${VD}Regras IPv4 ${NC}]\n"
+	echo -e "\t[${PS}${VD}Regras IPv4${NC}]\n"
    	${IPT4} -nL --line-numbers
-	echo -e "\n\t[${PS}${VD}Regras IPv6 ${NC}]\n"
+	echo -e "\n\t[${PS}${VD}Regras IPv6${NC}]\n"
     ${IPT6} -nL --line-numbers
     echo
     read -p "Precione Enter Para Contiunar..." x
@@ -187,7 +208,8 @@ for ((i=1;i>0;i++)); do
 	echo -e "${VM}[7]${NC} - ${AM}Remover Regras.${NC}" #FEITO
 	echo -e "${VM}[0]${NC} - ${VM}Sair.${NC}"
 	read -p "Selecione uma opção: " OP
-		case $OP in 
+		case $OP in
+			2) _stop_firewall ;; 
 			3) _status ;; 
 			4) _salvar_regras_atu ;;
 			5) _restaurar_regras_sv ;;
