@@ -17,28 +17,32 @@ function _top()
 
 if [ $(ls "firewall.sh") ]; then
 	_top
-	echo -e "\t${AZ}CRIANDO DIRETORIOS....................${NC}[${PS}${VD}Aguarde${NC}]\n"
-	mkdir /etc/firewall/
-	sleep 2
-	echo -e "\tDIRETORIO CRIADO.....................................[${PS}${VD}OK${NC}]\n"
-	
-	echo -e "\t${AZ}COPIANDO ARQUIVOS.....................${NC}[${PS}${VD}Aguarde${NC}]\n"
-	cp ./firewall.sh /etc/firewall/
-	sleep 2
-	echo -e "\tARQUIVOS COPIADOS....................................[${PS}${VD}OK${NC}]\n"
-	
-	echo -e "\t${AZ}CRIANDO LINK DO ARQUIVO...............${NC}[${PS}${VD}Aguarde${NC}]\n"
-	ln -s /etc/firewall/firewall.sh /etc/init.d
-	sleep 2
-	echo -e "\tLINK CRIANDO.........................................[${PS}${VD}OK${NC}]\n"
-	
-	echo -e "\t${AZ}COLOCANDO SCRIPT NA INICIALIZAÇÃO.....${NC}[${PS}${VD}Aguarde${NC}]\n"
-	cd /etc/init.d && update-rc.d firewall.sh defaults
-	chmod +x /etc/firewall/firewall.sh
-	sleep 1
-	echo -e "\tSCRIPT INICIALIZADO..................................[${PS}${VD}OK${NC}]\n"
-	exit 1
-
+	if [ $(ls /etc/ | grep firewall) == 'firewall' ];then
+		echo -e "\t${AZ}DIRETORIO JÁ EXISTE....................${NC}[${PS}${VD}OK${NC}]\n"
+		sleep 2
+	else 
+		echo -e "\t${AZ}CRIANDO DIRETORIOS................${NC}[${PS}${VD}Aguarde${NC}]\n"
+		mkdir /etc/firewall/
+		sleep 2
+		echo -e "\tDIRETORIO CRIADO.....................................[${PS}${VD}OK${NC}]\n"
+		echo -e "\t${AZ}COPIANDO ARQUIVOS.....................${NC}[${PS}${VD}Aguarde${NC}]\n"
+		cp ./firewall.sh /etc/firewall/
+		sleep 2
+		echo -e "\tARQUIVOS COPIADOS....................................[${PS}${VD}OK${NC}]\n"
+		
+		echo -e "\t${AZ}CRIANDO LINK DO ARQUIVO...............${NC}[${PS}${VD}Aguarde${NC}]\n"
+		ln -s /etc/firewall/firewall.sh /etc/init.d
+		sleep 2
+		echo -e "\tLINK CRIANDO.........................................[${PS}${VD}OK${NC}]\n"
+		
+		echo -e "\t${AZ}COLOCANDO SCRIPT NA INICIALIZAÇÃO.....${NC}[${PS}${VD}Aguarde${NC}]\n"
+		cd /etc/init.d && update-rc.d firewall.sh defaults
+		chmod +x /etc/firewall/firewall.sh
+		sleep 2
+		echo -e "\tSCRIPT INICIALIZADO..................................[${PS}${VD}OK${NC}]\n"
+		echo "alias firewall='/etc/init.d/firewall.sh start'" >> /etc/profile && source /etc/profile
+		exit 1
+	fi
 else
 	clear
 	echo -e "\t${AZ}ARQUIVO [firewall.sh] NÃO ENCONTRADO...........${NC}[${PS}${VM}BAD${NC}]\n"
