@@ -57,6 +57,7 @@ function _menu_principal()
 		echo -e "${VM}[5]${NC} - ${AM}Restaurar Regras Salvas.${NC}" #FEITO
 		echo -e "${VM}[6]${NC} - ${AM}Adicionar Regras.${NC}"
 		echo -e "${VM}[7]${NC} - ${AM}Remover Regras.${NC}" #FEITO
+		echo -e "${VM}[8]${NC} - ${AM}Tornar Regras Persistentes.${NC}" #FEITO
 		echo -e "${VM}[0]${NC} - ${VM}Sair.${NC}" #FEITO
 		read -p "Selecione uma opção: " OP
 			case $OP in
@@ -67,6 +68,7 @@ function _menu_principal()
 				5) _restaurar_regras_sv ;; #Restaurar Regras Salvas.
 				6) _adicionar_regras ;; #Adicionar Regras.
 				7) _remove_regras_cadeias ;; #Remover Regras.
+				8) _persiste_regras ;; #Torna as regras persistentes.
 				0) break ;; #Sair.
 				*)  echo -e "${VM}Opção Invalida!${NC}" #Caso seja informado um opção diferente das informada no menu dará como invalida!
 			esac
@@ -270,7 +272,7 @@ function _restaurar_regras_sv()
 		$IPTR4 < /etc/iptables-save; echo -e "${VERM} *Regras ipv4 atuais restauradas ${NC}\n"
 	else # Caso não exista ele pergunta se deseja instalar ou não o ip6tables-restore, caso instale ele em seguida restaura as regras no /etc/iptables-save.
 		echo -e "${AZ}iptables-restore${NC} [${PS}${VM}BAD${NC}]"
-		echo -e "${VM} iptables-restore não encotrado use:${NC}${VD}sudo apt install iptables-restore${NC}."
+		echo -e "${VM} ip6tables-restore não encotrado${NC} instalar iptables-restore?${NC}."
 		PS3="Selecione uma opção acima: "
 		select OP in "sim(s) nao(n) sair(0)"; do
 			case ${REPLY} in 
@@ -291,7 +293,7 @@ function _restaurar_regras_sv()
 	
 	else # Caso não exista ele pergunta se deseja instalar ou não o ip6tables-restore, caso instale ele em seguida restaura as regras no /etc/ip6tables-save.
 		echo -e "${AZ}ip6tables-restore${NC} [${PS}${VM}BAD${NC}]"
-		echo -e "${VM} ip6tables-restore não encotrado use:${NC}${VD}sudo apt install ip6tables-restore${NC}."
+		echo -e "${VM} ip6tables-restore não encotrado${NC} instalar ip6tables-restore?${NC}."
 		PS3="Selecione uma opção acima: "
 		select OP in "sim(s) nao(n) sair(0)"; do
 			case ${REPLY} in 
@@ -338,6 +340,33 @@ function _adicionar_regras()
 			*)  echo -e "${VM}Opção Invalida!${NC}" #Caso seja informado um opção diferente das informada no menu dará como invalida!
 		esac
 	done
+}
+#FUNÇÃO PARA TORNAR AS REGRAS PERSISTENTES NO SISTEMA.
+function _persiste_regras()
+{
+	_top
+	if [ $(which netfilter-persistent) ]; then
+		echo -e "${AZ}netfilter-persistent${NC} [${PS}${VD}OK${NC}]\n"
+		$IPTS4 > /etc/iptables/rules.v4 
+		echo -e "${VERM} *Regras ipv4 atuais tornadas persistentes.${NC}\n"
+	else
+		echo -e "${AZ}netfilter-persistent não encontrado${NC} [${PS}${VD}BAD${NC}]\n"
+		echo -e "${VM}instalar iptables-restore?${NC}."
+		PS3="Selecione uma opção acima: "
+		select OP in "sim(s) nao(n) sair(0)"; do
+			case ${REPLY} in 
+				sim|s) apt install iptables-persistent -y &> /dev/null 
+					   echo -e "${AZ}netfilter-persistent${NC} [${PS}${VD}OK${NC}]\n"
+					   $IPTS4 > /etc/iptables/rules.v4 
+					  echo -e "${VERM} *Regras ipv4 atuais tornadas persistentes.${NC}\n"; break ;;
+					   
+				nao|n) echo -e "${AZ}netfilter-persistent${NC} [${PS}${VM}BAD${NC}]"; break ;;
+				sair|0) break ;;
+				*) echo -e "${VM}Opção Invalida!${NC}" #Caso seja informado um opção diferente das informada no menu dará como invalida!
+			esac
+		done
+	fi
+	read -p "Precione Enter Para Contiunar..." x		
 }
 #FUNÇÃO PARA ABRIR OU BLOQUEAR PORTAS NO FIREWALL, É INFORMADO UMA PORTA COM ISSO IRÁ ABRI-LA OU BLOQUEA-LA.
 function _AB_PORT()
